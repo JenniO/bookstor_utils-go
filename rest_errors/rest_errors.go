@@ -27,6 +27,14 @@ func NewNotFoundError(message string) *RestErr {
 	}
 }
 
+func NewUnauthorizedError(message string) *RestErr {
+	return &RestErr{
+		Message: message,
+		Status:  http.StatusUnauthorized,
+		Error:   "unauthorized",
+	}
+}
+
 func NewInternalServerError(message string, err error) *RestErr {
 	result := RestErr{
 		Message: message,
