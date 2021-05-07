@@ -55,13 +55,11 @@ func init() {
 		Level:       zap.NewAtomicLevelAt(getLevel()),
 		Encoding:    "json",
 		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey:   "msg",
-			LevelKey:     "level",
-			TimeKey:      "time",
-			CallerKey:    "caller",
-			EncodeTime:   zapcore.ISO8601TimeEncoder,
-			EncodeLevel:  zapcore.LowercaseLevelEncoder,
-			EncodeCaller: zapcore.ShortCallerEncoder,
+			MessageKey:  "msg",
+			LevelKey:    "level",
+			TimeKey:     "time",
+			EncodeTime:  zapcore.ISO8601TimeEncoder,
+			EncodeLevel: zapcore.LowercaseLevelEncoder,
 		},
 	}
 
@@ -101,7 +99,7 @@ func Error(msg string, err error, tags ...zap.Field) {
 }
 
 func retrieveCallInfo() zap.Field {
-	programCounter, file, line, _ := runtime.Caller(1)
+	programCounter, file, line, _ := runtime.Caller(2)
 	functionCalled := strings.Split(runtime.FuncForPC(programCounter).Name(), ".")
 	pl := len(functionCalled)
 	funcName := functionCalled[pl-1]
