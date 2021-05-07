@@ -5,6 +5,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"path"
+	"runtime"
 	"strings"
 )
 
@@ -74,7 +76,7 @@ func GetLogger() bookstoreLogger {
 }
 
 func (log logger) Print(v ...interface{}) {
-	Info(fmt.Sprintf("%v", v))
+	Info(fmt.Sprintf("%#v", v))
 }
 
 func (log logger) Printf(format string, v ...interface{}) {
@@ -86,12 +88,26 @@ func (log logger) Printf(format string, v ...interface{}) {
 }
 
 func Info(msg string, tags ...zap.Field) {
+	tags = append(tags, retrieveCallInfo())
 	log.log.Info(msg, tags...)
 	log.log.Sync()
 }
 
 func Error(msg string, err error, tags ...zap.Field) {
 	tags = append(tags, zap.NamedError("error", err))
+	tags = append(tags, retrieveCallInfo())
 	log.log.Error(msg, tags...)
 	log.log.Sync()
+}
+
+func retrieveCallInfo() zap.Field {
+	programCounter, file, line, _ := runtime.Caller(1)
+	functionCalled := strings.Split(runtime.FuncForPC(programCounter).Name(), ".")
+	pl := len(functionCalled)
+	funcName := functionCalled[pl-1]
+	pkg := functionCalled[pl-2]
+	pkg = strings.Trim(pkg, "()*")
+	_, filename := path.Split(file)
+	caller := fmt.Sprintf("%s/%s - %s : %d", pkg, filename, funcName, line)
+	return zap.String("caller", caller)
 }
